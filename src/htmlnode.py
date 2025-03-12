@@ -1,3 +1,6 @@
+def create_props(props):
+    return ' ' + ' '.join(list(map(lambda item: f'{item[0]}="{item[1]}"', props.items()))) if props else ''
+
 class HTMLNode:
     def __init__(self, tag=None, value=None, children=None, props=None):
         self.tag = tag
@@ -24,7 +27,7 @@ class LeafNode(HTMLNode):
         if self.value is None:
             raise ValueError('value cannot be None')
 
-        return f'<{self.tag}>{self.value}</{self.tag}>' if self.tag else self.value
+        return f'<{self.tag}{create_props(self.props)}>{self.value}</{self.tag}>' if self.tag else self.value
 
 
 class ParentNode(HTMLNode):
@@ -42,4 +45,4 @@ class ParentNode(HTMLNode):
         if not self.children:
             raise ValueError('children cannot be None')
 
-        return f'<{self.tag}>{''.join(list(map(lambda child: child.to_html(), self.children)))}</{self.tag}>'
+        return f'<{self.tag}{create_props(self.props)}>{''.join(list(map(lambda child: child.to_html(), self.children)))}</{self.tag}>'
