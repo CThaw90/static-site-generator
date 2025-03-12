@@ -14,14 +14,32 @@ class HTMLNode:
 
 class LeafNode(HTMLNode):
 
-    def __init__(self, value, tag=None, props=None):
+    def __init__(self, tag=None, value=None, props=None):
         super().__init__(tag, value, None, props)
-
-        if value is None:
-            raise ValueError('value cannot be None')
 
         self.value = value
         self.tag = tag
 
     def to_html(self):
+        if self.value is None:
+            raise ValueError('value cannot be None')
+
         return f'<{self.tag}>{self.value}</{self.tag}>' if self.tag else self.value
+
+
+class ParentNode(HTMLNode):
+    def __init__(self, tag, children, props=None):
+        super().__init__(tag, None, children, props)
+
+        self.tag = tag
+        self.children = children
+        self.props = props
+
+    def to_html(self):
+        if not self.tag:
+            raise ValueError('tag cannot be None')
+
+        if not self.children:
+            raise ValueError('children cannot be None')
+
+        return f'<{self.tag}>{''.join(list(map(lambda child: child.to_html(), self.children)))}</{self.tag}>'
