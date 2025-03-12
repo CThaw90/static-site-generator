@@ -1,6 +1,8 @@
 from textnode import TextNode, TextType
 from htmlnode import LeafNode
 
+import re
+
 def text_node_to_html_node(text_node: TextNode):
     match text_node.text_type:
         case TextType.BOLD:
@@ -44,6 +46,12 @@ def split_nodes_delimiter(nodes, delimiter, text_type):
             split_nodes.append(TextNode(current_node.text[end + delimiter_length:], text_type))
 
     return split_nodes
+
+def extract_markdown_links(text):
+    return re.findall(r'(?<!!)\[([^\[\]]*)]\(([^()]*)\)', text)
+
+def extract_markdown_images(text):
+    return re.findall(r'!\[([^\[\]]*)]\(([^()]*)\)', text)
 
 def main():
     print(TextNode('Navigate to the Theezy Trader app', TextType.LINK, 'https://theezy-trader-da96c.ondigitalocean.app/'))
