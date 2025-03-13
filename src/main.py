@@ -32,7 +32,6 @@ def split_nodes_delimiter(nodes, delimiter, text_type):
         case '`':
             split_text_type = TextType.CODE
         case _:
-            print('Setting split type text to normal')
             split_text_type = TextType.NORMAL
 
     for split_node_indexes in split_nodes_indexes:
@@ -52,6 +51,31 @@ def extract_markdown_links(text):
 
 def extract_markdown_images(text):
     return re.findall(r'!\[([^\[\]]*)]\(([^()]*)\)', text)
+
+def split_text_nodes(old_nodes: list[TextNode], text_type, split_function):
+    split_nodes = []
+    for node in old_nodes:
+        extracted_nodes = split_function(node.text)
+        start, end = 0, 0
+        if extracted_nodes:
+            for extracted in extracted_nodes:
+                (name, url) = extracted
+                start = node.text.index(name) - (1 if text_type == TextType.LINK else 2)
+                split_nodes.append(TextNode(node.text[end:start], TextType.NORMAL))
+                split_nodes.append(TextNode(name, text_type, url))
+                end = node.text.index(url) + len(url) + 1
+
+            if end < len(node.text):
+                split_nodes.append(TextNode(node.text[end:], TextType.NORMAL))
+
+    return split_nodes
+
+
+def split_nodes_image(old_nodes):
+    return split_text_nodes(old_nodes, TextType.IMAGE, extract_markdown_images)
+
+def split_nodes_link(old_nodes):
+    return split_text_nodes(old_nodes, TextType.LINK, extract_markdown_links)
 
 def main():
     print(TextNode('Navigate to the Theezy Trader app', TextType.LINK, 'https://theezy-trader-da96c.ondigitalocean.app/'))
